@@ -79,6 +79,37 @@ class _ActivityBookingState extends State<ActivityBooking> {
     }
   }
 
+  void bookASlot() {
+    if (selectedDate != null && selectedFromTime != null) {
+      DateTime from = DateTime(selectedDate!.year, selectedDate!.month,
+          selectedDate!.day, selectedFromTime!.hour, selectedFromTime!.minute);
+      DateTime to = DateTime(selectedDate!.year, selectedDate!.month,
+          selectedDate!.day, selectedToTime!.hour, selectedToTime!.minute);
+      double finalCost = 0;
+      if (widget.amenity.costType == CostType.hourBased) {
+        finalCost = (selectedToTime!.hour - selectedFromTime!.hour) *
+            widget.amenity.cost;
+      } else {
+        finalCost = widget.amenity.cost;
+      }
+      final Booking booking = Booking(
+        from,
+        to,
+        widget.amenity.amenity,
+        finalCost,
+      );
+      bool res = widget.service.saveBooking(booking);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => ActivityConfirm(
+            isSuccess: res,
+            booking: booking,
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -235,43 +266,7 @@ class _ActivityBookingState extends State<ActivityBooking> {
                   ),
                   RawMaterialButton(
                     onPressed: () {
-                      if (selectedDate != null && selectedFromTime != null) {
-                        DateTime from = DateTime(
-                            selectedDate!.year,
-                            selectedDate!.month,
-                            selectedDate!.day,
-                            selectedFromTime!.hour,
-                            selectedFromTime!.minute);
-                        DateTime to = DateTime(
-                            selectedDate!.year,
-                            selectedDate!.month,
-                            selectedDate!.day,
-                            selectedToTime!.hour,
-                            selectedToTime!.minute);
-                        double finalCost = 0;
-                        if (widget.amenity.costType == CostType.hourBased) {
-                          finalCost =
-                              (selectedToTime!.hour - selectedFromTime!.hour) *
-                                  widget.amenity.cost;
-                        } else {
-                          finalCost = widget.amenity.cost;
-                        }
-                        final Booking booking = Booking(
-                          from,
-                          to,
-                          widget.amenity.amenity,
-                          finalCost,
-                        );
-                        bool res = widget.service.saveBooking(booking);
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => ActivityConfirm(
-                              isSuccess: res,
-                              booking: booking,
-                            ),
-                          ),
-                        );
-                      }
+                      bookASlot();
                     },
                     fillColor: Colors.blue,
                     child: const Padding(
