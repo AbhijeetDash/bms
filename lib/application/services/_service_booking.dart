@@ -48,6 +48,13 @@ class BookingServiceImpl extends BookingService {
           isAvailable = false;
           break;
         }
+
+        // if entire time is between other slots.
+        if (booking.from.compareTo(element.from) < 0 &&
+            booking.to.compareTo(element.to) > 0) {
+          isAvailable = false;
+          break;
+        }
       }
     }
 
